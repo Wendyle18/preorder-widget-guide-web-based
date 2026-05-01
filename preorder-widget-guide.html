@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Preorder Widget — Setup Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0a0a0a;
+    --paper: #f5f2eb;
+    --accent: #c8401a;
+    --muted: #888;
+    --line: #d0ccc3;
+    --code-bg: #1a1a1a;
+    --code-fg: #e8e4d9;
+    --green: #1a6b3a;
+    --green-bg: #e8f5ee;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 60px 32px 100px;
+  }
+
+  /* ── HEADER ── */
+  .doc-header {
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding: 28px 0 24px;
+    margin-bottom: 56px;
+  }
+  .doc-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .doc-title {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .doc-title span { color: var(--accent); }
+  .doc-sub {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 52px;
+  }
+
+  .section-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 28px 0 10px;
+  }
+
+  p { margin-bottom: 12px; color: #222; }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; list-style: none; }
+  .steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 0 16px;
+    margin-bottom: 28px;
+    align-items: start;
+  }
+  .steps li::before {
+    content: counter(step);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--paper);
+    background: var(--ink);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  .step-body strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .step-body p {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 8px;
+  }
+
+  /* ── CODE ── */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-fg);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 18px 20px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 10px 0 14px;
+  }
+  code {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+    background: rgba(0,0,0,0.07);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .hl { color: #f0a070; }    /* liquid highlight */
+  .cm { color: #666; }       /* comment */
+  .st { color: #85c985; }    /* string */
+  .kw { color: #a0c4f8; }    /* keyword */
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: #fff8f6;
+    padding: 14px 18px;
+    border-radius: 0 4px 4px 0;
+    font-size: 14px;
+    margin: 16px 0;
+    color: #333;
+  }
+  .callout.ok {
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+  .callout strong { display: block; margin-bottom: 3px; }
+
+  /* ── CHECKS ── */
+  .checks { list-style: none; }
+  .checks li {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: #333;
+  }
+  .checks li:last-child { border-bottom: none; }
+  .checks li::before {
+    content: '○';
+    font-size: 16px;
+    color: var(--line);
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  /* ── CONDITIONS TABLE ── */
+  .conditions { width: 100%; border-collapse: collapse; font-size: 14px; margin: 14px 0; }
+  .conditions th {
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    padding: 8px 12px;
+    border-bottom: 2px solid var(--ink);
+  }
+  .conditions td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .conditions tr:last-child td { border-bottom: none; }
+  .conditions td:first-child { font-weight: 500; width: 44%; }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,0.06);
+    padding: 2px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  /* ── PREVIEW BOX ── */
+  .preview {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 20px;
+    margin: 16px 0;
+    background: #fff;
+  }
+  .preview-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .widget-mock {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .card-mock {
+    flex: 1;
+    border-radius: 8px;
+    padding: 22px 10px 12px;
+    text-align: center;
+    position: relative;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+  .card-mock.active { border: 2px solid #111; background: #fff; }
+  .card-mock.future { border: 1px solid #e0e0e0; background: #f5f5f5; }
+  .badge-mock {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 22px;
+    font-size: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px 6px 0 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .active .badge-mock { background: #c8401a; color: #fff; }
+  .future .badge-mock { background: #cfcfcf; color: #555; }
+  .price-mock { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+  .active .price-mock { color: #111; }
+  .future .price-mock { color: #aaa; text-decoration: line-through; }
+  .plabel-mock { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: #666; }
+  .arrow-mock { color: #ccc; font-size: 18px; flex-shrink: 0; padding-top: 10px; }
+
+  /* ── TROUBLESHOOT ── */
+  .trouble { margin-top: 14px; }
+  .trouble-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+  .trouble-q {
+    padding: 12px 14px;
+    background: #fff;
+    border-right: 1px solid var(--line);
+    font-weight: 500;
+  }
+ 
+  .trouble-a {
+    padding: 12px 14px;
+    background: #fafaf8;
+    color: #333;
+  }
+  .trouble-a::before { content: '→  '; color: var(--green); font-weight: 600; }
+
+  /* ── THEME TABLE ── */
+  .theme-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 14px; }
+  .theme-table th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+  .theme-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  .theme-table tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+  .theme-table td:first-child { font-weight: 600; }
+  .theme-table code { font-size: 11.5px; }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin-top: 72px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<header class="doc-header">
+  <div class="doc-label">Shopify · Essential Preorder App · Setup Guide</div>
+  <div class="doc-title">Preorder Discount <span>Widget</span></div>
+  <div class="doc-sub">Get the preorder button showing.</div>
+</header>
+
+<!-- ── WHAT IT LOOKS LIKE ── -->
+<div class="section">
+  <div class="section-num">Preview</div>
+  <h2>What You're Building</h2>
+  <div class="preview">
+    <div class="preview-label">Widget renders above Add to Cart button</div>
+    <div class="widget-mock">
+      <div class="card-mock active">
+        <div class="badge-mock">Save 38%</div>
+        <div class="price-mock">$49.00</div>
+        <div class="plabel-mock">Early Bird</div>
+      </div>
+      <div class="arrow-mock">›</div>
+      <div class="card-mock future">
+        <div class="badge-mock">Regular Price</div>
+        <div class="price-mock">$79.00</div>
+        <div class="plabel-mock">Launch Price</div>
+      </div>  
+    </div>
+  </div>
+  <p style="font-size:13px; color: var(--muted); margin-top: 4px;">Left card = preorder price with discount set already. Right card = Original Price. Badge = auto-calculated discount.</p>
+</div>
+
+<!-- ── BEFORE YOU START ── -->
+<div class="section">
+  <div class="section-num">Requirements</div>
+  <h2>Before You Start</h2>
+  <p>Three things must be in place or the widget won't show up at all.</p>
+  <table class="conditions">
+    <thead>
+      <tr><th>Requirement</th><th>Where to check</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Essential Preorder app installed</td>
+        <td>Shopify Admin → Apps</td>
+      </tr>
+      <tr>
+        <td>App embed turned ON</td>
+        <td>Theme Editor → App embeds panel → toggle on</td>
+      </tr>
+      <tr>
+        <td>Discount configured in the app</td>
+        <td>Essential Preorder App → Content →Discount</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>No compare-at price = widget stays hidden.</strong>
+    The widget only shows when there is an actual discount to display. Set a compare-at price on every preorder variant.
+  </div>
+</div>
+
+<!-- ── INSTALLATION ── -->
+<div class="section">
+  <div class="section-num">Installation</div>
+  <h2>Two Files, Four Steps</h2>
+  <ol class="steps">
+    <li>
+      <div class="step-body">
+        <strong>Upload the snippet</strong>
+        <p>In Shopify Admin go to <strong>Online Store → Themes → Edit code</strong>. Inside the <strong>Snippets</strong> folder, create a new file:</p>
+        <pre>preorder-discount-widget.liquid</pre>
+        <p>Paste the full snippet found  <a href="https://github.com/Wendyle18/Discount-Widget-First-Design/blob/main/preorder-discount-widget.liquid&sa=D&source=docs&ust=1777612323412165&usg=AOvVaw1H_KuXqnZ7aRYTxVBK5hab">here</a> : content and save.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Open buy-buttons.liquid</strong>
+        <p>Find this file in your theme. For Horizon it lives at:</p>
+        <pre>blocks/buy-buttons.liquid</pre>
+        <p>For other themes see the theme table at the bottom of this guide.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Add the render tag — above the Add to Cart button</strong>
+        <p>Find the <code>product-form-buttons</code> div (or the add-to-cart button block). Place the render tag directly above it, still inside the form:</p>
+        <pre><span class="cm">{%- comment -%} Preorder Discount Widget {%- endcomment -%}</span>
+<span class="hl">{% render </span><span class="st">'preorder-discount-widget'</span><span class="hl"> %}</span>
+
+<span class="cm">&lt;!-- add-to-cart button comes right after this --&gt;</span>
+<span class="kw">&lt;div</span> class=<span class="st">"product-form-buttons"</span><span class="kw">&gt;</span>
+  ...
+<span class="kw">&lt;/div&gt;</span></pre>
+        <div class="callout">
+          <strong>Must be inside the form block.</strong>
+          The tag must sit between <code>{%- form -%}</code> and <code>{%- endform -%}</code>, or variant switching won't update the widget.
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Enable the app embed &amp; set discount in the app</strong>
+        <p>In Theme Editor open <strong>App embeds</strong> and toggle on <em>Essential Preorder &amp; Back In Stock</em>. Then in the product editor, Then in the Essential Preorder App, set a discount.</p>
+        <div class="callout ok">
+          <strong>Done. Visit and reload the product page.</strong>
+          The widget appears automatically above the Add to Cart button whenever a preorder variant with a discount is selected.
+        </div>
+      </div>
+    </li>
+  </ol>
+</div>
+
+<!-- ── DISCOUNT FORMAT ── -->
+<div class="section">
+  <div class="section-num">Optional</div>
+  <h2>Change the Discount Format</h2>
+  <p>At the very top of the snippet there is one variable that controls how the badge reads:</p>
+  <pre><span class="cm">{% comment %} 'percent' → Save 38%  |  'amount' → Save $30.00 {% endcomment %}</span>
+<span class="hl">{% assign</span> pw_discount_format = <span class="st">'percent'</span> <span class="hl">%}</span></pre>
+  <p>Change <code>'percent'</code> to <code>'amount'</code> to show the flat currency saving instead. This is for merchants who choose to use amount off ' instead of ' percent off in the discount. The currency symbol is pulled automatically</p>
+</div>
+
+<!-- ── HOW IT DECIDES TO SHOW ── -->
+<div class="section">
+  <div class="section-num">Logic</div>
+  <h2>When the Widget Shows vs Hides</h2>
+  <p>The widget checks two things every time a variant is selected:</p>
+  <pre><span class="cm">1. Is this variant in preorder state?</span>
+   → Looks for <span class="st">.essential-preorder-container-active</span> in the DOM
+
+<span class="cm">2. Is there a real discount?</span>
+   → compare-at price exists AND is higher than preorder price
+
+<span class="cm">Both true  →  widget shows</span>
+<span class="cm">Either false →  widget hides (no empty space left behind)</span></pre>
+  <p>The widget updates automatically when the customer switches variants. No page reload needed.</p>
+</div>
+
+<!-- ── TROUBLESHOOTING ── -->
+<div class="section">
+  <div class="section-num">Troubleshooting</div>
+  <h2>Common Issues</h2>
+  <div class="trouble">
+    <div class="trouble-item">
+      <div class="trouble-q">Widget not showing at all</div>
+      <div class="trouble-a">App embed is off, or no compare-at price set on the variant</div>
+    </div>
+    <div class="trouble-item">
+      <div class="trouble-q">Strikethrough price missing</div>
+      <div class="trouble-a">Discount within the app is not set</div>
+    </div>
+    <div class="trouble-item">
+      <div class="trouble-q">Widget shows on non-preorder variants</div>
+      <div class="trouble-a">App isn't marking the variant as inactive,  check if essential-preorder-container-active in the DOM, but not displaying the preorder button</div>
+    </div>
+    <div class="trouble-item">
+      <div class="trouble-q">Doesn't update when switching variants</div>
+      <div class="trouble-a">Render tag is outside the <code>{%- form -%}</code> block — move it inside</div>
+    </div>
+    <div class="trouble-item">
+      <div class="trouble-q">Liquid error: snippet not found</div>
+      <div class="trouble-a">File must be named exactly <code>preorder-discount-widget.liquid</code> (all lowercase, hyphens)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── THEME PLACEMENT ── -->
+<div class="section">
+  <div class="section-num">Other Themes</div>
+  <h2>Where to Put the Render Tag by Theme</h2>
+  <p>The rule is always the same: <strong>inside the product form, above the add-to-cart button.</strong></p>
+  <table class="theme-table">
+    <thead>
+      <tr><th>Theme</th><th>File to edit</th><th>Place render tag before</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Horizon</td>
+        <td><code>blocks/buy-buttons.liquid</code></td>
+        <td>product-form-buttons div</td>
+      </tr>
+      <tr>
+        <td>Dawn</td>
+        <td><code>snippets/buy-buttons.liquid</code></td>
+        <td>Add to cart button block</td>
+      </tr>
+      <tr>
+        <td>Impulse</td>
+        <td><code>snippets/product-form.liquid</code></td>
+        <td>Add to cart button</td>
+      </tr>
+      <tr>
+        <td>Prestige</td>
+        <td><code>sections/product.liquid</code></td>
+        <td>buy_buttons block render</td>
+      </tr>
+      <tr>
+        <td>Debut</td>
+        <td><code>sections/product-template.liquid</code></td>
+        <td>form "product" open tag</td>
+      </tr>
+      <tr>
+        <td>Any other theme</td>
+        <td>Search codebase for <code>type="add-to-cart-form"</code></td>
+        <td>Above the add-to-cart button, inside the form</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+  <div class="callout">
+    <strong>Note: </strong>
+    At the end of the day, it will always depends on merchants theme’s structure and where the Add to Cart (ATC) button is placed. The preorder button is tied to that same element, so its placement follows wherever the ATC button is defined in your theme.
+  </div>
+</div>
+<!-- ── QUICK CHECKLIST ── -->
+<div class="section">
+  <div class="section-num">Testing</div>
+  <h2>Quick Checklist Before Going Live</h2>
+  <ul class="checks">
+    <li>Widget appears above Add to Cart on a preorder variant</li>
+    <li>Left card shows the early-bird price with discount already (no strikethrough)</li>
+    <li>Right card shows the original price  with strikethrough</li>
+    <li>Badge shows the correct % or $ saving</li>
+    <li>Widget hides when a non-preorder variant is selected</li>
+    <li>Widget reappears when switching back to preorder variant with the discount set</li>
+    <li>On mobile — both cards side by side, text readable</li>
+  </ul>
+</div>
+
+<footer class="doc-footer">
+  <span>preorder-discount-widget.liquid</span>
+  <span>Essential Preorder &amp; Back In Stock · Horizon</span>
+</footer>
+
+</body>
+</html>
